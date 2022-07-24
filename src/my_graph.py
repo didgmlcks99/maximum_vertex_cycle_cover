@@ -17,17 +17,17 @@ class Graph:
         self.savedGraph[u].append(v)
     
     def printGraph(self):
-        for i in self.graph:
+        for i in self.savedGraph:
             print(i, end=': ')
-            for pref in self.graph[i]:
+            for pref in self.savedGraph[i]:
                 print(pref, end=', ')
             print()
 
         print('*************************')
 
-        for i in self.graph:
+        for i in self.savedGraph:
             print(self.idx2pos[i], end=': ')
-            for pref in self.graph[i]:
+            for pref in self.savedGraph[i]:
                 print(self.idx2pos[pref], end=', ')
             print()
     
