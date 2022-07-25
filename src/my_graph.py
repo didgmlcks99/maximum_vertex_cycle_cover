@@ -32,7 +32,6 @@ class Graph:
             print()
     
     def printRecord(self):
-        
         for i in self.record:
             print(i, end=': ')
             for route in self.record[i]:
@@ -70,9 +69,7 @@ class Graph:
             if v != len(self.left_vertices)-1: print('', end=', ')
             else: print()
 
-    
     def find_max_cycles(self):
-
         while self.graph:
             self.recordMaxCycles()
             self.removeMaxCycle()
@@ -86,7 +83,6 @@ class Graph:
             self.DFS(start, start, self.record[start], stack)
     
     def DFS(self, start, u, route_stacks, stack):
-
         if u in self.graph:
             if start != u:
                 stack.append(u)
