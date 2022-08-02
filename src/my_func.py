@@ -27,6 +27,9 @@ def init_graph(graph, data, pos2idx):
         pos_idx = pos2idx[row[0]]
         pref_pos_list = list(row[5:8])
         
+        tot_score = row[13]
+        graph.saveScore(pos_idx, tot_score)
+        
         for pref_pos in pref_pos_list:
             if not math.isnan(pref_pos):
                 pref_int = int(pref_pos)

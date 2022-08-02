@@ -11,6 +11,13 @@ class Graph:
         self.record = defaultdict(list)
         self.max_cycles = []
         self.left_vertices = []
+        self.staff_scores = defaultdict(int)
+
+        self.score_records = defaultdict(list)
+        self.max_scores = []
+    
+    def saveScore(self, u, score):
+        self.staff_scores[u] = score
     
     def addEdge(self, u, v):
         self.graph[u].append(v)
@@ -77,25 +84,33 @@ class Graph:
     
     def recordMaxCycles(self):
         self.record = defaultdict(list)
+        self.score_records = defaultdict(list)
         
         for start in self.graph:
+            score_stack = []
+            score_stack.append(self.staff_scores[start])
+
             stack = []
-            self.DFS(start, start, self.record[start], stack)
+            self.DFS(start, start, self.record[start], stack, self.score_records[start], score_stack)
     
-    def DFS(self, start, u, route_stacks, stack):
+    def DFS(self, start, u, route_stacks, stack, score_rec, score_stack):
         if u in self.graph:
             if start != u:
                 stack.append(u)
+                score_stack.append(self.staff_scores[u])
 
             for v in self.graph[u]:
                 if v not in stack:
                     if v == start:
                         route_stacks.append(copy.deepcopy(stack))
+                        score_rec.append(copy.deepcopy(score_stack))
                     else:
-                        self.DFS(start, v, route_stacks, stack)
+                        self.DFS(start, v, route_stacks, stack, score_rec, score_stack)
             
+            # remove going back track (DFS)
             if stack:
                 stack.pop()
+                score_stack.pop()
     
     def removeMaxCycle(self):
         v = 'vertex'
@@ -116,6 +131,43 @@ class Graph:
         if max[v] != -1:
             self.record[max[v]][max[c]].append(max[v])
             self.max_cycles.append( self.record[max[v]][max[c]])
+            
+            self.printCurrentMaxCycle(max)
+
+            for cyc_vertex in self.record[max[v]][max[c]]:
+                del self.graph[cyc_vertex]
+        else:
+            print('left alone positions: ', end='')
+            
+            self.left_vertices = list(self.graph.keys())
+            
+            for pos in self.left_vertices:
+                print(self.idx2pos[pos], end=', ')
+                del self.graph[pos]
+
+            # for pos in self.left_vertices:
+            #     print(pos, end=', ')
+            #     del self.graph[pos]
+    
+    def removeMaxScore(self):
+        v = 'vertex'
+        c = 'cycle'
+        l = 'score'
+
+        max = {v: -1, c: -1, l: -1}
+
+        for i in self.score_records:
+            for j in range(len(self.record[i])):
+                cyc_score = sum(self.record[i][j])
+
+                if cyc_score > max[l]:
+                    max[v] = i
+                    max[c] = j
+                    max[l] = cyc_score
+        
+        if max[v] != -1:
+            self.record[max[v]][max[c]].append(max[v])
+            self.max_cycles.append(self.record[max[v]][max[c]])
             
             self.printCurrentMaxCycle(max)
 
