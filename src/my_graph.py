@@ -3,7 +3,7 @@ import copy
 
 class Graph:
 
-    def __init__(self, vertices, idx2pos):
+    def __init__(self, vertices, idx2pos, n):
         self.V = vertices
         self.savedGraph = defaultdict(list)
         self.graph = defaultdict(list)
@@ -11,7 +11,9 @@ class Graph:
         self.record = defaultdict(list)
         self.max_cycles = []
         self.left_vertices = []
+
         self.staff_scores = defaultdict(int)
+        self.n = n
 
         self.score_records = defaultdict(list)
         self.max_scores = []
@@ -82,13 +84,19 @@ class Graph:
             self.removeMaxCycle()
             print()
     
+    def find_max_score_cycles(self):
+        while self.graph:
+            self.recordMaxCycles()
+            self.removeMaxScore()
+            print()
+    
     def recordMaxCycles(self):
         self.record = defaultdict(list)
         self.score_records = defaultdict(list)
         
         for start in self.graph:
             score_stack = []
-            score_stack.append(self.staff_scores[start])
+            score_stack.append(self.n**self.staff_scores[start])
 
             stack = []
             self.DFS(start, start, self.record[start], stack, self.score_records[start], score_stack)
@@ -97,7 +105,7 @@ class Graph:
         if u in self.graph:
             if start != u:
                 stack.append(u)
-                score_stack.append(self.staff_scores[u])
+                score_stack.append(self.n**self.staff_scores[u])
 
             for v in self.graph[u]:
                 if v not in stack:
@@ -130,7 +138,7 @@ class Graph:
         
         if max[v] != -1:
             self.record[max[v]][max[c]].append(max[v])
-            self.max_cycles.append( self.record[max[v]][max[c]])
+            self.max_cycles.append(self.record[max[v]][max[c]])
             
             self.printCurrentMaxCycle(max)
 
@@ -157,8 +165,8 @@ class Graph:
         max = {v: -1, c: -1, l: -1}
 
         for i in self.score_records:
-            for j in range(len(self.record[i])):
-                cyc_score = sum(self.record[i][j])
+            for j in range(len(self.score_records[i])):
+                cyc_score = sum(self.score_records[i][j])
 
                 if cyc_score > max[l]:
                     max[v] = i
