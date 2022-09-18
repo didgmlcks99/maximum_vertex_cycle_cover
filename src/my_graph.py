@@ -1,5 +1,8 @@
 from collections import defaultdict
 import copy
+from time import monotonic
+import pandas as pd
+import openpyxl
 
 class Graph:
 
@@ -88,7 +91,7 @@ class Graph:
         while self.graph:
             self.recordMaxCycles()
             self.removeMaxScore()
-            print()
+            # print()
     
     def recordMaxCycles(self):
         self.record = defaultdict(list)
@@ -177,19 +180,36 @@ class Graph:
             self.record[max[v]][max[c]].append(max[v])
             self.max_cycles.append(self.record[max[v]][max[c]])
             
-            self.printCurrentMaxCycle(max)
+            # self.printCurrentMaxCycle(max)
 
             for cyc_vertex in self.record[max[v]][max[c]]:
                 del self.graph[cyc_vertex]
         else:
-            print('left alone positions: ', end='')
+            # print('left alone positions: ', end='')
             
             self.left_vertices = list(self.graph.keys())
             
             for pos in self.left_vertices:
-                print(self.idx2pos[pos], end=', ')
+                # print(self.idx2pos[pos], end=', ')
                 del self.graph[pos]
 
             # for pos in self.left_vertices:
             #     print(pos, end=', ')
             #     del self.graph[pos]
+    
+    def saveExcel(self):
+        mobility = []
+
+        for cycle in self.max_cycles:
+            for v in range(1, len(cycle)+1, 1):
+                if v < len(cycle):
+                    mobility.append([self.idx2pos[cycle[v-1]], self.idx2pos[cycle[v]]])
+                else:
+                    mobility.append([self.idx2pos[cycle[v-1]], self.idx2pos[cycle[0]]])
+        
+        for v in range(len(self.left_vertices)):
+            mobility.append([self.idx2pos[self.left_vertices[v]], ''])
+        
+        df = pd.DataFrame(mobility, columns=['from', 'to'])
+
+        df.to_excel('result.xlsx')
