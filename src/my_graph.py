@@ -34,6 +34,7 @@ class Graph:
         self.staff_scores = defaultdict(int)
 
 
+
         # holds the information of all cycle and its score and vertex size
         # recorded during findMaxCycle()
         self.record = defaultdict(list)
@@ -58,6 +59,7 @@ class Graph:
         self.graph[u].append(v)
         self.savedGraph[u].append(v)
     
+
     
     
     
@@ -277,6 +279,9 @@ class Graph:
             for pos in self.left_vertices:
                 print(self.idx2pos[pos], end=', ')
                 del self.graph[pos]
+
+
+
 
 
 
