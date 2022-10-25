@@ -21,10 +21,9 @@ def startOperation(filename):
     pos2idx = mf.mk_pos2idx(apply_data)
     idx2pos = mf.to_idx2pos(pos2idx)
 
-    mg = mgc.Graph(len(pos2idx), idx2pos, len(apply_data))
+    mg = mgc.Graph(len(pos2idx), idx2pos)
     mf.init_graph(mg, apply_data, pos2idx)
     mg.find_max_score_cycles()
-    # mg.printResult()
     mg.saveExcel()
 
 def selectFile():
