@@ -16,3 +16,11 @@ Building Executable File
 ----------------------
 1. cd src
 2. pyinstaller -F -w main.py
+
+Required Python Module
+----------------------
+* pandas
+* openpyxl
+* math
+* collections
+* copy
