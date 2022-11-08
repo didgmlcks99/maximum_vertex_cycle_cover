@@ -1,11 +1,10 @@
-import math
-
-# makes a diction of position id to index number
+# makes a dictionary of position number to index number
 def mk_pos2idx(data):
     pos2idx = {}
 
     idx = 0
 
+    # row[0] indicates the position number
     for i, row in data.iterrows():
         pos_num = row[0]
 
@@ -59,7 +58,7 @@ def init_graph(graph, data, pos2idx):
         for pref_pos in pref_pos_list:
 
             # if it is not an error input (it is a number)
-            if not math.isnan(pref_pos):
+            if not isNan(pref_pos):
 
                 pref_int = int(pref_pos)
 
@@ -89,3 +88,60 @@ def print_graph(graph):
             print(pref_pos, end='-->')
         
         print()
+
+
+def isNan(n):
+    return n != n
+
+
+# add score to each staff according to the
+# hiring manager recommendation
+def addHMRecScore(graph, data, pos2idx):
+    start_HM = 8
+    end_HM = 13
+
+    for i, row in data.iterrows():
+
+        # get list of recommendation given by a single manager
+        list_HM = list(row[start_HM:end_HM])
+
+        for position in list_HM:
+
+            # if this recommendation is trully a position number
+            # give addition score to the staff at this position
+            # through their idx number
+            if not isNan(position):
+                score4idx = pos2idx[int(position)]
+                graph.addScore(score4idx)
+
+
+def mk_pos2pers(data):
+
+    # index numbers to access each data 
+    # in data
+    position = 0
+    first_name = 1
+    last_name = 2
+    title = 3
+    level = 4
+    duty_station = 14
+    hardship = 15
+
+
+    pos2pers = {}
+
+    # row[0] indicates the position number
+    for i, row in data.iterrows():
+        pos_num = row[position]
+
+        if pos_num not in pos2pers:
+            pos2pers[pos_num] = {
+                'first_name': row[first_name],
+                'last_name': row[last_name],
+                'title': row[title],
+                'level': row[level],
+                'duty_station': row[duty_station],
+                'hardship': row[hardship]
+            }
+    
+    return pos2pers

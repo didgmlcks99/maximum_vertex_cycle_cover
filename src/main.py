@@ -10,21 +10,27 @@ import my_graph as mgc
 
 def startOperation(filename):
     sheet1 = pd.read_excel(filename, engine='openpyxl', sheet_name = 0)
-    sheet2 = pd.read_excel(filename, engine='openpyxl', sheet_name = 1)
 
-    attr_1 = ["Position number", "Index #", "First name", "Last name", "Current position level", "s/m preference 1", "s/m preference 2", "s/m preference 3", "HM recommended", "HM recommended.1", "HM recommended.2", "HM recommended.3", "HM recommended.4", "Scoring system (total)", "Division"]
-    apply_data = sheet1[attr_1][:30]
 
-    attr_2 = ["Position number", "Duty Station", "Level"]
-    pos_data = sheet2[attr_2]
+    attr_1 = ["Position number", "First name", "Last name", "Current position title", "Current position level", "s/m preference 1", "s/m preference 2", "s/m preference 3", "HM recommended", "HM recommended.1", "HM recommended.2", "HM recommended.3", "HM recommended.4", "Scoring system (total)", "Current duty station", "Hardship classification"]
+    apply_data = sheet1[attr_1]
+
 
     pos2idx = mf.mk_pos2idx(apply_data)
     idx2pos = mf.to_idx2pos(pos2idx)
+    pos2pers = mf.mk_pos2pers(apply_data)
 
-    mg = mgc.Graph(len(pos2idx), idx2pos)
+
+    mg = mgc.Graph(len(pos2idx), idx2pos, pos2pers)
     mf.init_graph(mg, apply_data, pos2idx)
+    mf.addHMRecScore(mg, apply_data, pos2idx)
+
+
     mg.find_max_score_cycles()
+
+
     mg.saveExcel()
+
 
 def selectFile():
     filetypes = (('text files', '*.xlsx'),)
@@ -40,6 +46,7 @@ def selectFile():
     # )
 
     startOperation(filename)
+
 
 def initWindow(window):
     window.title('Staff Mobility')

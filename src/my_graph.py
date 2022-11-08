@@ -4,7 +4,7 @@ import pandas as pd
 
 class Graph:
 
-    def __init__(self, num_vertices, idx2pos):
+    def __init__(self, num_vertices, idx2pos, pos2pers):
         
         # graph information maintained through out program process
         self.tot_vertices = num_vertices
@@ -22,6 +22,11 @@ class Graph:
         # calculations done with idx number
         # dictionary used to output as wanted position number
         self.idx2pos = idx2pos
+
+        # pos2pers dictionary 
+        # calculations done with position number
+        # dictionary used to output as wanted position number
+        self.pos2pers = pos2pers
 
         # initiated through myFunction init_graph at main
         # init_graph(graph, data, pos2idx)
@@ -52,6 +57,12 @@ class Graph:
     # to each vertices according to idx number
     def saveScore(self, u, score):
         self.staff_scores[u] = score
+    
+
+    # called from my function to add hiring manager score
+    # to each staff on certain position according to idx number
+    def addScore(self, u):
+        self.staff_scores[u] += 1
 
     # called from my function to add edges
     # according to the preferred idx number 
@@ -134,6 +145,7 @@ class Graph:
     def find_max_score_cycles(self):
 
         # records cycles and its scores
+        # until there is no vertex left in graph
         while self.graph:
 
             # records cycles and its scores
@@ -142,9 +154,15 @@ class Graph:
             # remove cycles according to cycle score
             self.removeMaxScore()
     
+
+
+
+
+
+
     def recordMaxCycles(self):
 
-        # cleans saved records, and scores
+        # cleans saved cycle records, and scores
         # then begin finding information about cycle
         self.record = defaultdict(list)
         self.score_records = defaultdict(list)
@@ -153,7 +171,13 @@ class Graph:
         # as the start of building cycles 
         for start in self.graph:
             score_stack = []
+
+            # append the score of the first vertex,
+            # no need to add the vertex itself to stack
+            # because it is indicated as the start of the cycle
+            # just the score
             # score_stack.append(self.num_vertices**self.staff_scores[start])
+            score_stack.append(self.staff_scores[start]**2)
 
             stack = []
             self.DFS(start, start, self.record[start], stack, self.score_records[start], score_stack)
@@ -161,7 +185,7 @@ class Graph:
     def DFS(self, start, u, route_stacks, stack, score_rec, score_stack):
         if u in self.graph:
 
-            # if not the end of cycle
+            # if it is not the end of cycle
             if start != u:
                 # save the current vertex
                 # as it is a vertex part of searching cycle
@@ -169,11 +193,14 @@ class Graph:
 
                 # save the current vertex score
                 # as if is a vertex part of seraching cycle
-                score_stack.append(self.num_vertices**self.staff_scores[u])
+                # score_stack.append(self.num_vertices**self.staff_scores[u])
+                score_stack.append(self.staff_scores[u]**2)
 
             # loop through the edges of this vertex
             # as this vertex is part of searching cycle
             for v in self.graph[u]:
+
+                # if the next cycle is not searched (colored)
                 if v not in stack:
 
                     # if it is the end of the searching cycle
@@ -213,6 +240,8 @@ class Graph:
                     max[l] = cyc_len
         
         if max[v] != -1:
+
+            # add position for printing out results
             self.record[max[v]][max[c]].append(max[v])
 
             # record the finalized maxed cycle to data structure
@@ -220,9 +249,15 @@ class Graph:
             
             self.printCurrentMaxCycle(max)
 
+            cnt = 0
             # delete the vertex related to the cycle
             for cyc_vertex in self.record[max[v]][max[c]]:
                 del self.graph[cyc_vertex]
+                cnt += 1
+
+            # edit the vertex number size
+            # according to the number of vertices deleted in the total graph 
+            self.num_vertices -= cnt
         else:
             print('left alone positions: ', end='')
             
@@ -232,6 +267,8 @@ class Graph:
                 print(self.idx2pos[pos], end=', ')
                 del self.graph[pos]
     
+
+
     def removeMaxScore(self):
         v = 'vertex'
         c = 'cycle'
@@ -241,7 +278,7 @@ class Graph:
 
         for i in self.score_records:
 
-            # loop through all the cycles recorded
+            # loop through all the scores recorded for a single cycle
             for j in range(len(self.score_records[i])):
 
                 # save the score of the cycle                
@@ -255,6 +292,7 @@ class Graph:
                     max[l] = cyc_score
         
         if max[v] != -1:
+            # add position for printing out results
             self.record[max[v]][max[c]].append(max[v])
 
             # record the finalized max score cycle to the data structure
@@ -291,16 +329,76 @@ class Graph:
     def saveExcel(self):
         mobility = []
 
+        total_mob_cnt = 0
+        # iter through found mobility cycles
         for cycle in self.max_cycles:
+
+            # iter through each position in cycle
             for v in range(1, len(cycle)+1, 1):
+
+                # when current position is not the last position in the cycle
                 if v < len(cycle):
-                    mobility.append([self.idx2pos[cycle[v-1]], self.idx2pos[cycle[v]]])
+                    from_pos = self.idx2pos[cycle[v-1]]
+                    to_pos = self.idx2pos[cycle[v]]
+                
+                # when current position is the last position in the cycle
+                # match it with the first positoin
                 else:
-                    mobility.append([self.idx2pos[cycle[v-1]], self.idx2pos[cycle[0]]])
+                    from_pos = self.idx2pos[cycle[v-1]]
+                    to_pos = self.idx2pos[cycle[0]]
+
+
+
+                total_mob_cnt += 1
+
+                mobility.append([
+                    total_mob_cnt,
+                    from_pos,
+                    self.pos2pers[from_pos]['first_name'],
+                    self.pos2pers[from_pos]['last_name'],
+                    self.pos2pers[from_pos]['title'],
+                    self.pos2pers[from_pos]['level'],
+                    self.pos2pers[from_pos]['duty_station'],
+                    self.pos2pers[from_pos]['hardship'],
+                    to_pos,
+                    self.pos2pers[to_pos]['first_name'],
+                    self.pos2pers[to_pos]['last_name'],
+                    self.pos2pers[to_pos]['title'],
+                    self.pos2pers[to_pos]['level'],
+                    self.pos2pers[to_pos]['duty_station'],
+                    self.pos2pers[to_pos]['hardship'],
+                ])
         
         for v in range(len(self.left_vertices)):
-            mobility.append([self.idx2pos[self.left_vertices[v]], ''])
+            from_pos = self.idx2pos[self.left_vertices[v]]
+
+            mobility.append([
+                    total_mob_cnt,
+                    from_pos,
+                    self.pos2pers[from_pos]['first_name'],
+                    self.pos2pers[from_pos]['last_name'],
+                    self.pos2pers[from_pos]['title'],
+                    self.pos2pers[from_pos]['level'],
+                    self.pos2pers[from_pos]['duty_station'],
+                    self.pos2pers[from_pos]['hardship'],
+                ])
         
-        df = pd.DataFrame(mobility, columns=['from', 'to'])
+        df = pd.DataFrame(mobility, columns=[
+                'num',
+                'from',
+                'first name',
+                'last name',
+                'position title',
+                'level',
+                'duty station',
+                'hardship classification',
+                'to',
+                'first name',
+                'last name',
+                'position title',
+                'level',
+                'duty station',
+                'hardship classification',
+            ])
 
         df.to_excel('result.xlsx')
