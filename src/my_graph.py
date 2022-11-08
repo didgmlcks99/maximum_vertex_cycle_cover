@@ -352,7 +352,6 @@ class Graph:
                 total_mob_cnt += 1
 
                 mobility.append([
-                    total_mob_cnt,
                     from_pos,
                     self.pos2pers[from_pos]['first_name'],
                     self.pos2pers[from_pos]['last_name'],
@@ -373,7 +372,6 @@ class Graph:
             from_pos = self.idx2pos[self.left_vertices[v]]
 
             mobility.append([
-                    total_mob_cnt,
                     from_pos,
                     self.pos2pers[from_pos]['first_name'],
                     self.pos2pers[from_pos]['last_name'],
@@ -384,7 +382,6 @@ class Graph:
                 ])
         
         df = pd.DataFrame(mobility, columns=[
-                'num',
                 'from',
                 'first name',
                 'last name',
