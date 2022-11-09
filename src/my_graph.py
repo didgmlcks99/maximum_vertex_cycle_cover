@@ -293,7 +293,7 @@ class Graph:
                 # save the highest score in this cycle
                 cur_list = list(self.score_records[i][j])
                 highest_score = max(cur_list)
-                powered_score = highest_score ** self.num_vertices
+                powered_score = self.num_vertices ** highest_score
                 cyc_score = len(cur_list)*powered_score
 
 
