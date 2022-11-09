@@ -177,7 +177,7 @@ class Graph:
             # because it is indicated as the start of the cycle
             # just the score
             # score_stack.append(self.num_vertices**self.staff_scores[start])
-            score_stack.append(self.staff_scores[start]**2)
+            score_stack.append(self.staff_scores[start])
 
             stack = []
             self.DFS(start, start, self.record[start], stack, self.score_records[start], score_stack)
@@ -194,7 +194,7 @@ class Graph:
                 # save the current vertex score
                 # as if is a vertex part of seraching cycle
                 # score_stack.append(self.num_vertices**self.staff_scores[u])
-                score_stack.append(self.staff_scores[u]**2)
+                score_stack.append(self.staff_scores[u])
 
             # loop through the edges of this vertex
             # as this vertex is part of searching cycle
@@ -217,6 +217,11 @@ class Graph:
                 stack.pop()
                 score_stack.pop()
     
+
+
+
+
+
     def removeMaxCycle(self):
         v = 'vertex'
         c = 'cycle'
@@ -274,35 +279,43 @@ class Graph:
         c = 'cycle'
         l = 'score'
 
-        max = {v: -1, c: -1, l: -1}
+        optimize = {v: -1, c: -1, l: -1}
 
+        # dict of list of cycle scores
         for i in self.score_records:
 
             # loop through all the scores recorded for a single cycle
             for j in range(len(self.score_records[i])):
 
-                # save the score of the cycle                
-                cyc_score = sum(self.score_records[i][j])
+                # save the score of the cycle               
+                # cyc_score = sum(self.score_records[i][j])
+
+                # save the highest score in this cycle
+                cur_list = list(self.score_records[i][j])
+                highest_score = max(cur_list)
+                powered_score = highest_score ** self.num_vertices
+                cyc_score = len(cur_list)*powered_score
+
 
                 # save the vertex, cycle, score information
                 # of the maximum score cycle
-                if cyc_score > max[l]:
-                    max[v] = i
-                    max[c] = j
-                    max[l] = cyc_score
+                if cyc_score > optimize[l]:
+                    optimize[v] = i
+                    optimize[c] = j
+                    optimize[l] = cyc_score
         
-        if max[v] != -1:
+        if optimize[v] != -1:
             # add position for printing out results
-            self.record[max[v]][max[c]].append(max[v])
+            self.record[optimize[v]][optimize[c]].append(optimize[v])
 
             # record the finalized max score cycle to the data structure
-            self.max_cycles.append(self.record[max[v]][max[c]])
+            self.max_cycles.append(self.record[optimize[v]][optimize[c]])
             
-            self.printCurrentMaxCycle(max)
+            self.printCurrentMaxCycle(optimize)
 
             cnt = 0
             # delete the certex related to the cycle
-            for cyc_vertex in self.record[max[v]][max[c]]:
+            for cyc_vertex in self.record[optimize[v]][optimize[c]]:
                 del self.graph[cyc_vertex]
                 cnt += 1
 
