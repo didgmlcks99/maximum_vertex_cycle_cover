@@ -40,6 +40,10 @@ class Graph:
 
 
 
+        self.recommendation = defaultdict(list)
+
+
+
         # holds the information of all cycle and its score and vertex size
         # recorded during findMaxCycle()
         self.record = defaultdict(list)
@@ -70,6 +74,9 @@ class Graph:
         self.graph[u].append(v)
         self.savedGraph[u].append(v)
     
+    def addRecomm(self, u, ls):
+        self.recommendation[u] = ls
+
 
     
     
@@ -210,6 +217,8 @@ class Graph:
                         route_stacks.append(copy.deepcopy(stack))
                         score_rec.append(copy.deepcopy(score_stack))
                     else:
+                        if u in self.recommendation[v]:
+                            score_stack[-1] += 1
                         self.DFS(start, v, route_stacks, stack, score_rec, score_stack)
             
             # remove going back track (DFS)
@@ -300,6 +309,7 @@ class Graph:
                 # save the vertex, cycle, score information
                 # of the maximum score cycle
                 if cyc_score > optimize[l]:
+                # if cyc_score.compare(decimal.Decimal(optimize[l])) == 1:
                     optimize[v] = i
                     optimize[c] = j
                     optimize[l] = cyc_score
@@ -365,7 +375,7 @@ class Graph:
                 total_mob_cnt += 1
 
                 mobility.append([
-                    from_pos,
+                    self.pos2pers[from_pos]['index_num'],
                     self.pos2pers[from_pos]['first_name'],
                     self.pos2pers[from_pos]['last_name'],
                     self.pos2pers[from_pos]['title'],
@@ -385,7 +395,7 @@ class Graph:
             from_pos = self.idx2pos[self.left_vertices[v]]
 
             mobility.append([
-                    from_pos,
+                    self.pos2pers[from_pos]['index_num'],
                     self.pos2pers[from_pos]['first_name'],
                     self.pos2pers[from_pos]['last_name'],
                     self.pos2pers[from_pos]['title'],
@@ -395,14 +405,14 @@ class Graph:
                 ])
         
         df = pd.DataFrame(mobility, columns=[
-                'from',
+                'from (index #)',
                 'first name',
                 'last name',
                 'position title',
                 'level',
                 'duty station',
                 'hardship classification',
-                'to',
+                'to (position #)',
                 'first name',
                 'last name',
                 'position title',

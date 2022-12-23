@@ -24,15 +24,17 @@ def to_idx2pos(pos2idx):
     return idx2pos
 
 # inits graph
-def init_graph(graph, data, pos2idx):
+def init_graph(graph, data, pos2idx, pers2pos):
 
     # index numbers to access each data 
     # in data
     position = 0
-    start_pref = 5
-    end_pref = 8
-    total_score = 13
+    start_pref = 6
+    end_pref = 9
+    total_score = 14
 
+    start_HM = 9
+    end_HM = 14
 
     # loop through each applications in data (from excel)
     for i, row in data.iterrows():
@@ -69,6 +71,18 @@ def init_graph(graph, data, pos2idx):
                 # add an edge to the vertex of current idx_num to the pref_idx
                 graph.addEdge(idx_num, pref_idx)
 
+        
+        
+        # todo: add recommendation to position
+        rec_list_id = row[start_HM:end_HM]
+        rec_ls = []
+        for id in rec_list_id:
+            if not isNan(id):
+                id_idx = pos2idx[pers2pos[int(id)]]
+                rec_ls.append(id_idx)
+        graph.addRecomm(idx_num, rec_ls)
+
+
 # tool function to print pos2idx dictionary
 def print_pos2idx(pos2idx):
     key_list = list(pos2idx.keys())
@@ -97,8 +111,8 @@ def isNan(n):
 # add score to each staff according to the
 # hiring manager recommendation
 def addHMRecScore(graph, data, pos2idx):
-    start_HM = 8
-    end_HM = 13
+    start_HM = 9
+    end_HM = 14
 
     for i, row in data.iterrows():
 
@@ -120,22 +134,26 @@ def mk_pos2pers(data):
     # index numbers to access each data 
     # in data
     position = 0
-    first_name = 1
-    last_name = 2
-    title = 3
-    level = 4
-    duty_station = 14
-    hardship = 15
+    index_num = 1
+    first_name = 2
+    last_name = 3
+    title = 4
+    level = 5
+    duty_station = 15
+    hardship = 16
 
 
     pos2pers = {}
+    pers2pos = {}
 
     # row[0] indicates the position number
     for i, row in data.iterrows():
         pos_num = row[position]
+        pers2pos[row[index_num]] = pos_num
 
         if pos_num not in pos2pers:
             pos2pers[pos_num] = {
+                'index_num': row[index_num],
                 'first_name': row[first_name],
                 'last_name': row[last_name],
                 'title': row[title],
@@ -144,4 +162,4 @@ def mk_pos2pers(data):
                 'hardship': row[hardship]
             }
     
-    return pos2pers
+    return pos2pers, pers2pos
